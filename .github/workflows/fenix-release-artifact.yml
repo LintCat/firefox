@@ -93,9 +93,12 @@ jobs:
           echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > "$RUNNER_TEMP/release.jks"
           ls -la "$RUNNER_TEMP/release.jks"
 
-      - name: Prepare build metadata (mach build, artifact mode, no Gecko compile)
+      - name: Prepare build metadata (buildid.h for gradle)
         run: |
-          ./mach build
+          OBJ=obj-aarch64-unknown-linux-android
+          mkdir -p "$OBJ"
+          echo "#define MOZ_BUILDID $MOZ_BUILD_DATE" > "$OBJ/buildid.h"
+          cat "$OBJ/buildid.h"
 
       - name: Build Fenix release (Maven GeckoView, no Gecko compile)
         run: |
