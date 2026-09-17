@@ -96,7 +96,7 @@ jobs:
       - name: Build Fenix release (Maven GeckoView, no Gecko compile)
         run: |
           export ORG_GRADLE_PROJECT_disableDebugSigning=true
-          ./mach gradle fenix:app:assembleRelease
+          ./mach gradle fenix:assembleRelease
 
       - name: Locate APK
         run: |
