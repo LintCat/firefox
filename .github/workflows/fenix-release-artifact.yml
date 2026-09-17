@@ -93,6 +93,10 @@ jobs:
           echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > "$RUNNER_TEMP/release.jks"
           ls -la "$RUNNER_TEMP/release.jks"
 
+      - name: Prepare build metadata (mach build, artifact mode, no Gecko compile)
+        run: |
+          ./mach build
+
       - name: Build Fenix release (Maven GeckoView, no Gecko compile)
         run: |
           export ORG_GRADLE_PROJECT_disableDebugSigning=true
