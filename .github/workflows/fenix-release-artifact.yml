@@ -16,7 +16,6 @@ jobs:
     env:
       # Pin versions to a published build so GeckoView/AC resolve from Maven
       MOZ_BUILD_DATE: "20260917100302"
-      MOZ_ANDROID_FAT_AAR_ARCHITECTURES: "arm64-v8a"
       ORG_GRADLE_PROJECT_nightlyVersion: "158.0.20260917100302"
     steps:
       - name: Checkout repository
@@ -70,6 +69,14 @@ jobs:
           ln -sfn "$ANDROID_SDK_ROOT" "$HOME/.mozbuild/android-sdk-linux"
           echo 'mozbuild symlink:'
           ls -la "$HOME/.mozbuild/" | head || true
+
+      - name: Patch version logic (remove SNAPSHOT suffix)
+        run: |
+          F1=build.gradle
+          F2=mobile/android/android-components/components/browser/engine-gecko/build.gradle
+          sed -i 's|version += "-SNAPSHOT"|// LintCat pin: no SNAPSHOT|g' "$F1" "$F2"
+          echo '--- patched lines ---'
+          grep -n 'SNAPSHOT\|LintCat pin' "$F1" "$F2" || true
 
       - name: Write mozconfig (artifact build)
         run: |
