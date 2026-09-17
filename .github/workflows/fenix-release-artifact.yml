@@ -61,6 +61,15 @@ jobs:
           echo '--- after ---'
           ls "$ANDROID_SDK_ROOT/cmdline-tools" || true
           test -f "$ANDROID_SDK_ROOT/cmdline-tools/21.0/bin/sdkmanager" && echo 'cmdline-tools 21.0 OK' || echo 'cmdline-tools 21.0 STILL MISSING'
+          CLT="$ANDROID_SDK_ROOT/cmdline-tools/21.0/bin/sdkmanager"
+          if [ -f "$CLT" ]; then
+            yes | "$CLT" --licenses > /dev/null 2>&1 || true
+            "$CLT" "platform-tools" "platforms;android-37" "build-tools;37.0.0" || true
+          fi
+          mkdir -p "$HOME/.mozbuild"
+          ln -sfn "$ANDROID_SDK_ROOT" "$HOME/.mozbuild/android-sdk-linux"
+          echo 'mozbuild symlink:'
+          ls -la "$HOME/.mozbuild/" | head || true
 
       - name: Write mozconfig (artifact build)
         run: |
