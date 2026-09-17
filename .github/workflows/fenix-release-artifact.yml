@@ -40,14 +40,27 @@ jobs:
           echo "$SDK/platform-tools" >> "$GITHUB_PATH"
           echo "SDK layout:"; ls "$SDK"
           echo "cmdline-tools:"; ls "$SDK/cmdline-tools" || true
+          touch "$SDK/.wtest" 2>/dev/null && echo "SDK writable" || { echo "SDK not writable; fixing with sudo..."; sudo chown -R "$(id -u):$(id -g)" "$SDK"; }
+          rm -f "$SDK/.wtest" || true
 
       - name: Accept licenses and install SDK basics
         run: |
           CMDLINE=$(ls -d $ANDROID_SDK_ROOT/cmdline-tools/* 2>/dev/null | tail -1)
           yes | "$CMDLINE/bin/sdkmanager" --licenses > /dev/null 2>&1 || true
-          "$CMDLINE/bin/sdkmanager" "platform-tools" "platforms;android-37" "cmdline-tools;21.0" > /dev/null 2>&1 || true
-          echo "SDK step done"
+          echo '--- install packages ---'
+          "$CMDLINE/bin/sdkmanager" "platform-tools" "platforms;android-37" "cmdline-tools;21.0" || true
+          if [ ! -f "$ANDROID_SDK_ROOT/cmdline-tools/21.0/bin/sdkmanager" ]; then
+            echo '--- fallback: direct download cmdline-tools 21.0 (build 15641748) ---'
+            cd /tmp
+            curl -sL -o clt.zip 'https://dl.google.com/android/repository/commandlinetools-linux-15641748_latest.zip' || true
+            unzip -q -o clt.zip -d clt_extract || true
+            rm -rf "$ANDROID_SDK_ROOT/cmdline-tools/21.0"
+            mkdir -p "$ANDROID_SDK_ROOT/cmdline-tools"
+            mv clt_extract/cmdline-tools "$ANDROID_SDK_ROOT/cmdline-tools/21.0" 2>/dev/null || true
+          fi
+          echo '--- after ---'
           ls "$ANDROID_SDK_ROOT/cmdline-tools" || true
+          test -f "$ANDROID_SDK_ROOT/cmdline-tools/21.0/bin/sdkmanager" && echo 'cmdline-tools 21.0 OK' || echo 'cmdline-tools 21.0 STILL MISSING'
 
       - name: Write mozconfig (artifact build)
         run: |
