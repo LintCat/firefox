@@ -109,6 +109,13 @@ jobs:
           echo "#define MOZ_BUILDID $MOZ_BUILD_DATE" > "$OBJ/buildid.h"
           cat "$OBJ/buildid.h"
 
+      - name: Generate CrashReport annotation sources (pre-export equivalent)
+        run: |
+          export OBJ="$PWD/obj-aarch64-unknown-linux-android"
+          ./mach python .lintcat/gen_crash_report.py
+          ls -la "$OBJ/mobile/android/android-components/components/lib/crash/src/main/java/mozilla/components/lib/crash/service/" || true
+          head -8 "$OBJ/mobile/android/android-components/components/lib/crash/src/main/java/mozilla/components/lib/crash/service/CrashReport.kt" || true
+
       - name: Build Fenix release (Maven GeckoView, no Gecko compile)
         run: |
           export ORG_GRADLE_PROJECT_disableDebugSigning=true
