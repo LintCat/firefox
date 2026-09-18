@@ -123,14 +123,26 @@ jobs:
 
       - name: Locate APK
         run: |
+          OBJ=obj-aarch64-unknown-linux-android
+          echo '--- search in objdir ---'
+          find "$OBJ/gradle/build/mobile/android/fenix" -name "*.apk" 2>/dev/null | head -40 || true
+          echo '--- search in source tree ---'
           find mobile/android/fenix/app/build -name "*.apk" 2>/dev/null | head -40 || true
 
       - name: Sign APK
         run: |
           BUILD_TOOLS=$(ls -d "$ANDROID_SDK_ROOT"/build-tools/* | sort -V | tail -1)
-          APK=$(find mobile/android/fenix/app/build/outputs/apk/release -name "*.apk" | head -1)
-          echo "Signing: $APK"
+          OBJ=obj-aarch64-unknown-linux-android
+          APK=$(find "$OBJ/gradle/build/mobile/android/fenix" -name "*.apk" 2>/dev/null | grep -i release | head -1)
+          if [ -z "$APK" ]; then
+            APK=$(find "$OBJ" -name "*.apk" 2>/dev/null | head -1)
+          fi
+          echo "Signing: [$APK]"
           echo "Build tools: $BUILD_TOOLS"
+          if [ -z "$APK" ] || [ ! -f "$APK" ]; then
+            echo 'ERROR: no APK found to sign'
+            exit 1
+          fi
           "$BUILD_TOOLS/zipalign" -p -f 4 "$APK" "$RUNNER_TEMP/aligned.apk"
           "$BUILD_TOOLS/apksigner" sign \
             --ks "$RUNNER_TEMP/release.jks" \
