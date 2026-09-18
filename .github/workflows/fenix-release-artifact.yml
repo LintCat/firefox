@@ -70,13 +70,14 @@ jobs:
           echo 'mozbuild symlink:'
           ls -la "$HOME/.mozbuild/" | head || true
 
-      - name: Patch version logic (remove SNAPSHOT suffix)
+      - name: Patch version logic & settings (no SNAPSHOT; use Maven GeckoView)
         run: |
           F1=build.gradle
           F2=mobile/android/android-components/components/browser/engine-gecko/build.gradle
           sed -i 's|version += "-SNAPSHOT"|// LintCat pin: no SNAPSHOT|g' "$F1" "$F2"
+          sed -i "s|include ':geckoview'|// LintCat: disable local geckoview|; s|project(':geckoview').projectDir|// LintCat: disable local geckoview projectDir|g" settings.gradle
           echo '--- patched lines ---'
-          grep -n 'SNAPSHOT\|LintCat pin' "$F1" "$F2" || true
+          grep -n 'SNAPSHOT\|LintCat' "$F1" "$F2" settings.gradle || true
 
       - name: Write mozconfig (artifact build)
         run: |
