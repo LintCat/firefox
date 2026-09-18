@@ -123,6 +123,26 @@ jobs:
           echo '--- patched lines ---'
           grep -n 'SNAPSHOT\|LintCat' "$F1" "$F2" settings.gradle || true
 
+      - name: Apply LintCat customizations (package name, version, Momo icon)
+        run: |
+          F=mobile/android/fenix/app/build.gradle
+          sed -i 's|applicationId "org.mozilla"|applicationId "by.lint.nicolewei"|' "$F"
+          sed -i 's|applicationIdSuffix ".firefox"|applicationIdSuffix ".firefox.meow"|' "$F"
+          sed -i 's|\${Config\.releaseVersionName(project)}|1.0.0.lint\&nicolewei.2026.9.18.build|' "$F"
+          D=mobile/android/fenix/app/src/main/res/mipmap-anydpi
+          cp "$D/ic_launcher_momo.xml" "$D/ic_launcher.xml"
+          cp "$D/ic_launcher_momo.xml" "$D/ic_launcher_round.xml"
+          echo '--- verification ---'
+          grep -nE 'applicationId "by.lint|firefox\.meow' "$F" || true
+          grep -n '1.0.0.lint' "$F" || true
+          [ -f "$D/ic_launcher_momo.xml" ] || { echo 'Momo icon source missing'; exit 1; }
+          cmp -s "$D/ic_launcher_momo.xml" "$D/ic_launcher.xml" || { echo 'ic_launcher mismatch'; exit 1; }
+          cmp -s "$D/ic_launcher_momo.xml" "$D/ic_launcher_round.xml" || { echo 'ic_launcher_round mismatch'; exit 1; }
+          grep -q 'applicationId "by.lint.nicolewei"' "$F" || { echo 'package patch missing'; exit 1; }
+          grep -q 'applicationIdSuffix ".firefox.meow"' "$F" || { echo 'suffix patch missing'; exit 1; }
+          grep -q '1.0.0.lint&nicolewei.2026.9.18.build' "$F" || { echo 'version patch missing'; exit 1; }
+          echo 'all customizations OK'
+
       - name: Write mozconfig (release artifact build)
         run: |
           SDK=${ANDROID_SDK_ROOT:-$ANDROID_HOME}
