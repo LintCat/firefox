@@ -51,7 +51,7 @@ jobs:
           CMDLINE=$(ls -d $ANDROID_SDK_ROOT/cmdline-tools/* 2>/dev/null | tail -1)
           yes | "$CMDLINE/bin/sdkmanager" --licenses > /dev/null 2>&1 || true
           echo '--- install packages ---'
-          "$CMDLINE/bin/sdkmanager" "platform-tools" "platforms;android-36" "platforms;android-37" "cmdline-tools;21.0" || true
+          "$CMDLINE/bin/sdkmanager" "platform-tools" "platforms;android-36" "platforms;android-37" "emulator" "cmdline-tools;21.0" || true
           if [ ! -f "$ANDROID_SDK_ROOT/cmdline-tools/21.0/bin/sdkmanager" ]; then
             echo '--- fallback: direct download cmdline-tools 21.0 ---'
             cd /tmp
@@ -67,7 +67,7 @@ jobs:
           CLT="$ANDROID_SDK_ROOT/cmdline-tools/21.0/bin/sdkmanager"
           if [ -f "$CLT" ]; then
             yes | "$CLT" --licenses > /dev/null 2>&1 || true
-            "$CLT" "platform-tools" "platforms;android-36" "platforms;android-37" || true
+            "$CLT" "platform-tools" "platforms;android-36" "platforms;android-37" "emulator" || true
           fi
           mkdir -p "$HOME/.mozbuild"
           ln -sfn "$ANDROID_SDK_ROOT" "$HOME/.mozbuild/android-sdk-linux"
