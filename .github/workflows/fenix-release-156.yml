@@ -132,6 +132,8 @@ jobs:
           ac_add_options --enable-artifact-builds
           ac_add_options --enable-update-channel=release
           ac_add_options --enable-android-subproject=fenix
+          ac_add_options --without-embedded-uniffi-bindgen
+          ac_add_options --without-nimbus-fml
           ac_add_options --target=aarch64-linux-android
           ac_add_options --with-android-sdk=$SDK
           EOF
