@@ -98,10 +98,11 @@ jobs:
 
       - name: Install mozbuild JDK (156 wants jdk-17.0.18+8)
         run: |
-          mkdir -p "$HOME/.mozbuild"
+          mkdir -p "$HOME/.mozbuild/jdk"
           cd "$HOME/.mozbuild"
-          curl -sL -o jdk.tar.gz "https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.18%2B8/OpenJDK17U-jdk_x64_linux_hotspot_17.0.18_8.tar.gz"
-          tar -xzf jdk.tar.gz
+          curl -fsSL -o jdk.tar.gz "https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.18%2B8/OpenJDK17U-jdk_x64_linux_hotspot_17.0.18_8.tar.gz"
+          ls -la jdk.tar.gz
+          tar -xzf jdk.tar.gz -C "$HOME/.mozbuild/jdk"
           rm -f jdk.tar.gz
           ls -la "$HOME/.mozbuild/jdk/" || true
           "$HOME/.mozbuild/jdk/jdk-17.0.18+8/bin/java" -version 2>&1 | head -3 || true
