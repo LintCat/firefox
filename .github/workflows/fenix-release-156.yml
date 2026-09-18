@@ -96,6 +96,16 @@ jobs:
           curl -sL -o "$HOME/.mozbuild/bundletool.jar" "https://github.com/google/bundletool/releases/download/1.18.3/bundletool-all-1.18.3.jar"
           ls -la "$HOME/.mozbuild/bundletool.jar"
 
+      - name: Install mozbuild JDK (156 wants jdk-17.0.18+8)
+        run: |
+          mkdir -p "$HOME/.mozbuild"
+          cd "$HOME/.mozbuild"
+          curl -sL -o jdk.tar.gz "https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.18%2B8/OpenJDK17U-jdk_x64_linux_hotspot_17.0.18_8.tar.gz"
+          tar -xzf jdk.tar.gz
+          rm -f jdk.tar.gz
+          ls -la "$HOME/.mozbuild/jdk/" || true
+          "$HOME/.mozbuild/jdk/jdk-17.0.18+8/bin/java" -version 2>&1 | head -3 || true
+
       - name: Fetch LintCat build helper
         run: |
           mkdir -p .lintcat
